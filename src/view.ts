@@ -234,7 +234,6 @@ export default class CalendarView extends ItemView {
   }
 
   public revealActiveNote(): void {
-    const { moment } = window;
     const { activeLeaf } = this.app.workspace;
 
     if (activeLeaf.view instanceof FileView) {
@@ -246,9 +245,8 @@ export default class CalendarView extends ItemView {
       }
 
       // Check to see if the active note is a weekly-note
-      const { format } = getWeeklyNoteSettings();
-      date = moment(activeLeaf.view.file.basename, format, true);
-      if (date.isValid()) {
+      date = getDateFromFile(activeLeaf.view.file, "week");
+      if (date) {
         this.calendar.$set({ displayedMonth: date });
         return;
       }

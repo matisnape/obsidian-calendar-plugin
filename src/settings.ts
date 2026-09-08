@@ -46,7 +46,11 @@ export const defaultSettings = Object.freeze({
 
 export function appHasPeriodicNotesPluginLoaded(): boolean {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const periodicNotes = (<any>window.app).plugins.getPlugin("periodic-notes");
+  const pluginManager = (<any>window.app).plugins;
+  // Try dev version first, then fall back to production
+  const periodicNotes =
+    pluginManager.getPlugin("periodic-notes-anks") ||
+    pluginManager.getPlugin("periodic-notes");
   return periodicNotes && periodicNotes.settings?.weekly?.enabled;
 }
 
