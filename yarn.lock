@@ -3211,18 +3211,10 @@ obsidian-calendar-ui@0.3.12:
     svelte "3.35.0"
     tslib "2.1.0"
 
-obsidian-daily-notes-interface@0.8.4:
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/obsidian-daily-notes-interface/-/obsidian-daily-notes-interface-0.8.4.tgz#530cec611878c2d2ae94ba868490df5bf17c8ccf"
-  integrity sha512-REKQtAuIOKDbvNH/th1C1gWmJWCP5tRn9T/mfZGZt4Zncgko7McXK0aSKFtEInipvgbZJ2nScivvyLdiWluSMw==
-  dependencies:
-    obsidian obsidianmd/obsidian-api#master
-    tslib "2.1.0"
-
-obsidian-daily-notes-interface@0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/obsidian-daily-notes-interface/-/obsidian-daily-notes-interface-0.9.0.tgz#6a8996917899097c99ed62264a28e231a297d3c6"
-  integrity sha512-vzqOLgjTJi+jeT654eRgyEA2PfqeNI23Fe955VwqnRpAjkarr6qcllpC9cs1XBgpjmRm/XRIqXFdLsO+1z1RGg==
+obsidian-daily-notes-interface@0.8.4, "obsidian-daily-notes-interface@git+file:///Users/anna.nowak/projects/anks/obsidian-daily-notes-interface#faae0121f9ce14569a206992dc6229c1bc18971a":
+  version "0.9.4"
+  uid faae0121f9ce14569a206992dc6229c1bc18971a
+  resolved "git+file:///Users/anna.nowak/projects/anks/obsidian-daily-notes-interface#faae0121f9ce14569a206992dc6229c1bc18971a"
   dependencies:
     obsidian obsidianmd/obsidian-api#master
     tslib "2.1.0"
