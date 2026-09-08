@@ -3211,10 +3211,10 @@ obsidian-calendar-ui@0.3.12:
     svelte "3.35.0"
     tslib "2.1.0"
 
-obsidian-daily-notes-interface@0.8.4, "obsidian-daily-notes-interface@git+file:///Users/anna.nowak/projects/anks/obsidian-daily-notes-interface#faae0121f9ce14569a206992dc6229c1bc18971a":
+obsidian-daily-notes-interface@0.8.4, "obsidian-daily-notes-interface@github:matisnape/obsidian-daily-notes-interface#faae0121f9ce14569a206992dc6229c1bc18971a":
   version "0.9.4"
   uid faae0121f9ce14569a206992dc6229c1bc18971a
-  resolved "git+file:///Users/anna.nowak/projects/anks/obsidian-daily-notes-interface#faae0121f9ce14569a206992dc6229c1bc18971a"
+  resolved "https://codeload.github.com/matisnape/obsidian-daily-notes-interface/tar.gz/faae0121f9ce14569a206992dc6229c1bc18971a"
   dependencies:
     obsidian obsidianmd/obsidian-api#master
     tslib "2.1.0"
