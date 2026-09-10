@@ -65,8 +65,9 @@ export interface IPeriodicNotesPlugin {
 
 /**
  * Resolve the Periodic Notes plugin instance, but only when monthly notes
- * are enabled in it. Returns null otherwise (plugin missing, or monthly
- * notes disabled) so callers can fall back to default behavior.
+ * are enabled in it. Returns null otherwise (plugin missing, monthly notes
+ * disabled, or openPeriodicNote unavailable) so callers can fall back to
+ * default behavior.
  */
 export function getMonthlyNotesPeriodicNotesPlugin(): IPeriodicNotesPlugin | null {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,9 +76,37 @@ export function getMonthlyNotesPeriodicNotesPlugin(): IPeriodicNotesPlugin | nul
   const periodicNotes =
     pluginManager.getPlugin("periodic-notes-anks") ||
     pluginManager.getPlugin("periodic-notes");
-  if (!periodicNotes || !periodicNotes.settings?.monthly?.enabled) {
+  if (!periodicNotes) {
     return null;
   }
+
+  // `periodicNotes.settings` is a Svelte store (Writable<ISettings>), not a
+  // plain object, so `settings.monthly` was always undefined. The live
+  // "is monthly enabled" answer lives in the active calendar set, exposed
+  // via the public calendarSetManager API instead.
+  const calendarSetManager = periodicNotes.calendarSetManager;
+  if (
+    calendarSetManager &&
+    typeof calendarSetManager.getActiveGranularities === "function"
+  ) {
+    const activeGranularities = calendarSetManager.getActiveGranularities();
+    if (!activeGranularities?.includes("month")) {
+      return null;
+    }
+  } else {
+    // calendarSetManager (or the method) is missing on this Periodic Notes
+    // build. We can't verify whether monthly notes are enabled, so fail
+    // closed: returning null preserves today's known-safe behavior (fall
+    // back to the reset click handler) instead of risking a call into
+    // openPeriodicNote/createPeriodicNote for a granularity that may be
+    // disabled or unconfigured (empty format/folder).
+    return null;
+  }
+
+  if (typeof periodicNotes.openPeriodicNote !== "function") {
+    return null;
+  }
+
   return periodicNotes;
 }
 
