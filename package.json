@@ -14,12 +14,12 @@
   "dependencies": {
     "obsidian": "obsidianmd/obsidian-api#master",
     "obsidian-calendar-ui": "0.3.12",
-    "obsidian-daily-notes-interface": "github:matisnape/obsidian-daily-notes-interface#faae0121f9ce14569a206992dc6229c1bc18971a",
+    "obsidian-daily-notes-interface": "github:matisnape/obsidian-daily-notes-interface#bba664e424b962f989a2a4fc70ad882ee489f588",
     "svelte": "3.35.0",
     "tslib": "2.1.0"
   },
   "resolutions": {
-    "obsidian-daily-notes-interface": "github:matisnape/obsidian-daily-notes-interface#faae0121f9ce14569a206992dc6229c1bc18971a"
+    "obsidian-daily-notes-interface": "github:matisnape/obsidian-daily-notes-interface#bba664e424b962f989a2a4fc70ad882ee489f588"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "18.0.0",
