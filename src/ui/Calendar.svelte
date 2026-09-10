@@ -29,6 +29,14 @@
     today = window.moment();
   }
 
+  // Exposes the month currently shown in the calendar so callers outside
+  // the Svelte tree (e.g. src/view.ts) can act on it, since `displayedMonth`
+  // itself lives in obsidian-calendar-ui's component state and isn't
+  // otherwise reachable from view.ts.
+  export function getDisplayedMonth(): Moment {
+    return displayedMonth;
+  }
+
   function getToday(settings: ISettings) {
     configureGlobalMomentLocale(settings.localeOverride, settings.weekStart);
     dailyNotes.reindex();

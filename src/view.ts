@@ -12,6 +12,7 @@ import { get } from "svelte/store";
 import { TRIGGER_ON_OPEN, VIEW_TYPE_CALENDAR } from "src/constants";
 import { tryToCreateDailyNote } from "src/io/dailyNotes";
 import { tryToCreateWeeklyNote } from "src/io/weeklyNotes";
+import { getMonthlyNotesPeriodicNotesPlugin } from "src/settings";
 import type { ISettings } from "src/settings";
 
 import Calendar from "./ui/Calendar.svelte";
@@ -23,6 +24,13 @@ import {
   tasksSource,
   wordCountSource,
 } from "./ui/sources";
+
+// Mirrors obsidian-calendar-ui's (unexported) isMetaPressed helper so
+// meta-click behaves the same on the month header as it does on day/week cells.
+function isMetaPressed(event: MouseEvent): boolean {
+  const isMacOS = navigator.appVersion.indexOf("Mac") !== -1;
+  return isMacOS ? event.metaKey : event.ctrlKey;
+}
 
 export default class CalendarView extends ItemView {
   private calendar: Calendar;
@@ -45,6 +53,8 @@ export default class CalendarView extends ItemView {
 
     this.onContextMenuDay = this.onContextMenuDay.bind(this);
     this.onContextMenuWeek = this.onContextMenuWeek.bind(this);
+
+    this.onMonthHeaderClick = this.onMonthHeaderClick.bind(this);
 
     this.registerEvent(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,9 +109,11 @@ export default class CalendarView extends ItemView {
     ];
     this.app.workspace.trigger(TRIGGER_ON_OPEN, sources);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const containerEl = (this as any).contentEl as HTMLElement;
+
     this.calendar = new Calendar({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      target: (this as any).contentEl,
+      target: containerEl,
       props: {
         onClickDay: this.openOrCreateDailyNote,
         onClickWeek: this.openOrCreateWeeklyNote,
@@ -111,6 +123,59 @@ export default class CalendarView extends ItemView {
         onContextMenuWeek: this.onContextMenuWeek,
         sources,
       },
+    });
+
+    // Intercept clicks on the month header ("Oct 2026") to open/create that
+    // month's periodic note. Registered on the capture phase so it runs
+    // before obsidian-calendar-ui's own h3.title listener (resetDisplayedMonth),
+    // which fires on the bubble phase. The `.reset-button` dot in the nav
+    // calls the same resetDisplayedMonth but is a different element, so it
+    // is unaffected. Cast needed: the vendored obsidian.d.ts's
+    // registerDomEvent overload doesn't type the trailing capture/options arg.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.registerDomEvent as any)(
+      containerEl,
+      "click",
+      this.onMonthHeaderClick,
+      true
+    );
+  }
+
+  private onMonthHeaderClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const header = target?.closest?.("h3.title");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const containerEl = (this as any).contentEl as HTMLElement;
+
+    if (!header || !containerEl.contains(header)) {
+      // Not a click on the month header: let it through untouched.
+      return;
+    }
+
+    const periodicNotes = getMonthlyNotesPeriodicNotesPlugin();
+    if (!periodicNotes) {
+      // Periodic Notes isn't installed, or monthly notes aren't enabled in
+      // it: do nothing and let the existing reset-to-current-month click
+      // handler run instead.
+      return;
+    }
+
+    const displayedMonth: Moment = this.calendar?.getDisplayedMonth?.();
+    if (!displayedMonth) {
+      console.warn(
+        "[Calendar] Could not read the displayed month from obsidian-calendar-ui's h3.title header " +
+          "(Calendar.svelte#getDisplayedMonth); falling back to the default reset behavior."
+      );
+      return;
+    }
+
+    // We can act: prevent the library's own reset-to-current-month handler
+    // from also firing for this click.
+    event.preventDefault();
+    event.stopPropagation();
+
+    periodicNotes.openPeriodicNote("month", displayedMonth.clone(), {
+      inNewSplit: isMetaPressed(event),
     });
   }
 

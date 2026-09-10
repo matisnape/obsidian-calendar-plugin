@@ -1,3 +1,4 @@
+import type { Moment } from "moment";
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { appHasDailyNotesPluginLoaded } from "obsidian-daily-notes-interface";
 import type { ILocaleOverride, IWeekStartOption } from "obsidian-calendar-ui";
@@ -52,6 +53,32 @@ export function appHasPeriodicNotesPluginLoaded(): boolean {
     pluginManager.getPlugin("periodic-notes-anks") ||
     pluginManager.getPlugin("periodic-notes");
   return periodicNotes && periodicNotes.settings?.weekly?.enabled;
+}
+
+export interface IPeriodicNotesPlugin {
+  openPeriodicNote(
+    granularity: "day" | "week" | "month" | "quarter" | "year",
+    date: Moment,
+    opts?: { inNewSplit?: boolean; calendarSet?: string }
+  ): Promise<void>;
+}
+
+/**
+ * Resolve the Periodic Notes plugin instance, but only when monthly notes
+ * are enabled in it. Returns null otherwise (plugin missing, or monthly
+ * notes disabled) so callers can fall back to default behavior.
+ */
+export function getMonthlyNotesPeriodicNotesPlugin(): IPeriodicNotesPlugin | null {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pluginManager = (<any>window.app).plugins;
+  // Try dev version first, then fall back to production
+  const periodicNotes =
+    pluginManager.getPlugin("periodic-notes-anks") ||
+    pluginManager.getPlugin("periodic-notes");
+  if (!periodicNotes || !periodicNotes.settings?.monthly?.enabled) {
+    return null;
+  }
+  return periodicNotes;
 }
 
 export class CalendarSettingsTab extends PluginSettingTab {
